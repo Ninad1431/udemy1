@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Page</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #2c3e50; /* Dark background color */
+            color: #ecf0f1; /* Light text color */
+            margin: 0;
+            padding: 20px;
+        }
+
+
+        #quiz-container {
+            display: none; /* Initially hide the quiz container */
+        }
+        #quiz-container {
+            max-width: 850px;
+            margin: auto;
+        }
+
+        .question {
+            /* background-color: #2c3e50; */
+            background-color: #34495e;
+            margin-bottom: 20px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            color: #ecf0f1;
+            font-weight: 550;
+        }
+
+        .options label {
+            display: block;
+            margin-bottom: 10px; /* Increased spacing between options */
+            color: #ecf0f1; /* Light text color for options */
+            font-weight: 450;
+        }
+
+        .dropdown-btn {
+            cursor: pointer;
+            color: #3498db;
+            text-decoration: underline;
+            margin-top: 10px; /* Increased spacing between question and dropdown */
+        }
+        .dropdown-btn {
+            display: none; /* Initially hide the dropdown content */
+        }
+
+        .dropdown-content {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #3498db; /* Border color for dropdown */
+            background-color: #2980b9; /* Dark background color for dropdown */
+            color: #ecf0f1; /* Light text color for dropdown */
+        }
+        .dropdown-content {
+            display: none; /* Initially hide the dropdown content */
+        }
+
+
+        #evaluate-btn {
+            display: block;
+            margin: 40px auto;
+            /* Center the button horizontally with top margin */
+            padding: 10px;
+            background-color: #3498db;
+            color: #ecf0f1;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+        }
+        #evaluate-btn {
+            display: none; /* Initially hide the Evaluate button */
+        }
+
+
+        h1 {
+    text-align: center;
+    color: #3498db;
+    text-shadow: 6px 6px 6px rgba(0, 0, 0, 0.5);
+    background-color: #34495e;
+    padding: 10px;
+    border-radius: 100px;
+}
+
+
+
+
+
+
+        #start-test-btn {
+            position: fixed;
+            top: 70%;
+            left: 46%;
+            padding: 15px;
+            background-color: #3498db;
+            color: #ecf0f1;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1000;
+            font-weight: bold;
+        }
+        #start-test-btn:hover {
+    transform: scale(1.15);
+    transition: transform 0.5s ease;
+}
+
+        /* #timer {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            color: #ecf0f1;
+            font-size: 18px;
+            z-index: 1000;
+        } */
+
+        #timer-container {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+
+        #timer-box {
+            background-color: #000;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.8); /* Neon green glow */
+            color: #0f0; /* Neon green color */
+            font-size: 24px;
+            font-family: 'Digital-7', sans-serif; /* Digital-style font */
+        }
+
+
+        #initial-info-table {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 600px;
+            border-collapse: collapse;
+            border: 2px solid #3498db;
+            margin-bottom: 20px;
+        }
+
+        #initial-info-table th, #initial-info-table td {
+            border: 1px solid #3498db;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .correct-answer {
+    background-color: #27ae60 !important;
+    color: #ffffff !important;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.incorrect-answer {
+    background-color: #e74c3c !important;
+    color: #ffffff !important;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+@media only screen and (max-width: 600px) {
+    /* Styles for screens with a maximum width of 600px (adjust as needed) */
+    #start-test-btn {
+        top: 570px;
+        left: 167px;
+        padding: 18px;
+    }
+}
+    </style>
+</head>
+<body>
+    <br><br>
+<h1>CEH Latest Dumps Test</h1>
+<div id="quiz-container"></div>
+<div id="quiz-container"></div>
+<button id="evaluate-btn" onclick="evaluateQuiz()">Evaluate</button>
+
+<button id="start-test-btn" onclick="startTest()">Start Test</button>
+<!-- <div id="timer"></div> -->
+<div id="timer-container">
+    <div id="timer-box"></div>
+</div>
+
+
+<table id="initial-info-table">
+    <tr>
+        <th>Number of Questions</th>
+        <th>Passing Score</th>
+        <th>Time to Complete</th>
+    </tr>
+    <tr>
+        <td>125</td>
+        <td>90 (72%)</td>
+        <td>4 hours (240 minutes)</td>
+    </tr>
+</table>
+
+<script>
+    // Sample questions
+    const questions = [
+    {
+        "question": "Session splicing is an IDS evasion technique that exploits how some IDSs do not reconstruct sessions before performing pattern matching on the data. The idea behind session splicing is to split data between several packets, ensuring that no single packet matches any patterns within an IDS signature. Which tool can be used to perform session splicing attacks?",
+        "options": [
+            "tcpsplice",
+            "Burp",
+            "Hydra",
+            "Whisker"
+        ],
+        "answer": "D. Whisker"
+    },
+    {
+        "question": "Which of the following characteristics is not true about the Simple Object Access Protocol?",
+        "options": [
+            "Exchanges data between web services.",
+            "Only compatible with the application protocol HTTP.",
+            "Allows for any programming model.",
+            "Using Extensible Markup Language."
+        ],
+        "answer": "B. Only compatible with the application protocol HTTP."
+    },
+    {
+        "question": "According to the Payment Card Industry Data Security Standard, when is it necessary to conduct external and internal penetration testing?",
+        "options": [
+            "At least once a year and after any significant upgrade or modification.",
+            "At least once every two years and after any significant upgrade or modification.",
+            "At least once every three years or after any significant upgrade or modification.",
+            "At least twice a year or after any significant upgrade or modification."
+        ],
+        "answer": "A. At least once a year and after any significant upgrade or modification."
+    },
+    {
+        "question": "Alex, the penetration tester, performs a server scan. To do this, he uses the method where the TCP Header is split into many packets so that it becomes difficult to determine what packages are used for. Determine the scanning technique that Alex uses?",
+        "options": [
+            "Inverse TCP flag scanning",
+            "IP Fragmentation Scan",
+            "TCP Scanning",
+            "ACK flag scanning"
+        ],
+        "answer": "B. IP Fragmentation Scan"
+    },
+    {
+        "question": "The evil hacker Antonio is trying to attack the IoT device. He will use several fake identities to create a strong illusion of traffic congestion, affecting communication between neighbouring nodes and networks. What kind of attack does Antonio perform?",
+        "options": [
+            "Sybil Attack",
+            "Exploit Kits",
+            "Forged Malicious Device",
+            "Side-Channel Attack"
+        ],
+        "answer": "A. Sybil Attack"
+    },
+    {
+        "question": "Which of the following wireless standard has bandwidth up to 54 Mbit/s and signals in a regulated frequency spectrum around 5 GHz?",
+        "options": [
+            "802.11i",
+            "802.11n",
+            "802.11a",
+            "802.11g"
+        ],
+        "answer": "C. 802.11a"
+    },
+    {
+        "question": "Attacker uses various IDS evasion techniques to bypass intrusion detection mechanisms. At the same time, IDS is configured to detect possible violations of the security policy, including unauthorized access and misuse. Which of the following evasion method depend on the Time-to-Live (TTL) fields of a TCP/IP ?",
+        "options": [
+            "Denial-of-Service Attack",
+            "Unicode Evasion",
+            "Insertion Attack",
+            "Obfuscation"
+        ],
+        "answer": "C. Insertion Attack"
+    },
+    {
+        "question": "Which of the following is the method of determining the movement of a data packet from an untrusted external host to a protected internal host through a firewall?",
+        "options": [
+            "Session hijacking",
+            "Network sniffing",
+            "Firewalking",
+            "MITM"
+        ],
+        "answer": "C. Firewalking"
+    },
+    {
+        "question": "Often, for a successful attack, hackers very skillfully simulate phishing messages. To do this, they collect the maximum information about the company that they will attack: emails of real employees (including information about the hierarchy in the company), information about the appearance of the message (formatting, logos), etc. What is the name of this stage of the hacker's work?",
+        "options": [
+            "Investigation stage",
+            "Enumeration stage",
+            "Reconnaissance stage",
+            "Exploration stage"
+        ],
+        "answer": "C. Reconnaissance stage"
+    },
+    {
+        "question": "Identify Secure Hashing Algorithm, which produces a 160-bit digest from a message on principles similar to those used in MD4 and MD5?",
+        "options": [
+            "SHA-1",
+            "SHA-3",
+            "SHA-0",
+            "SHA-2"
+        ],
+        "answer": "A. SHA-1"
+    },
+    {
+        "question": "Which of the following Nmap's commands allows you to most reduce the probability of detection by IDS when scanning common ports?",
+        "options": [
+            "nmap -A - Pn",
+            "nmap -A --host-timeout 99-T1",
+            "nmap -sT -O -T0",
+            "nmap -sT -O -T2"
+        ],
+        "answer": "C. nmap -sT -O -T0"
+    },
+    {
+        "question": "What is a set of extensions to DNS that provide to DNS clients (resolvers) origin authentication, authenticated denial of existence and data integrity, but not availability or confidentiality?",
+        "options": [
+            "Resource records",
+            "DNSSEC",
+            "Resource transfer",
+            "Zone transfer"
+        ],
+        "answer": "B. DNSSEC"
+    },
+    {
+        "question": "Which of the following web application attack inject the special character elements \"Carriage Return\" and \"Line Feed\" into the user’s input to trick the web server, web application, or user into believing that the current object is terminated and a new object has been initiated?",
+        "options": [
+            "Server-Side JS Injection.",
+            "Log Injection.",
+            "CRLF Injection.",
+            "HTML Injection."
+        ],
+        "answer": "C. CRLF Injection."
+    },
+    {
+        "question": "Elon plans to make it difficult for the packet filter to determine the purpose of the packet when scanning. Which of the following scanning techniques will Elon use?",
+        "options": [
+            "ICMP scanning.",
+            "ACK scanning.",
+            "IPID scanning.",
+            "SYN/FIN scanning using IP fragments."
+        ],
+        "answer": "D. SYN/FIN scanning using IP fragments."
+    },
+    {
+        "question": "You analyze the logs and see the following output of logs from the machine with the IP address of 192.168.0.132: Time August 21 11:22:06 Port:20 Source:192.168.0.30 Destination:192.168.0.132 Protocol:TCP Time August 21 11:22:08 Port:21 Source:192.168.0.30 Destination:192.168.0.132 Protocol:TCP Time August 21 11:22:11 Port:22 Source:192.168.0.30 Destination:192.168.0.132 Protocol:TCP Time August 21 11:22:14 Port:23 Source:192.168.0.30 Destination:192.168.0.132 Protocol:TCP Time August 21 11:22:15 Port:25 Source:192.168.0.30 Destination:192.168.0.132 Protocol:TCP Time August 21 11:22:19 Port:80 Source:192.168.0.30 Destination:192.168.0.132 Protocol:TCP Time August 21 11:22:21 Port:443 Source:192.168.0.30 Destination:192.168.0.132 Protocol:TCP What conclusion can you make based on this output?",
+        "options": [
+            "Port scan targeting 192.168.0.132",
+            "Port scan targeting 192.168.0.30",
+            "Teardrop attack targeting 192.168.0.132",
+            "Denial of service attack targeting 192.168.0.132"
+        ],
+        "answer": "A. Port scan targeting 192.168.0.132"
+    },
+    {
+        "question": "Michael works as a system administrator. He receives a message that several sites are no longer available. Michael tried to go to the sites by URL, but it didn't work. Then he tried to ping the sites and enter IP addresses in the browser - it worked. What problem could Michael identify?",
+        "options": [
+            "Traffic is Blocked on UDP Port 56",
+            "Traffic is Blocked on UDP Port 53",
+            "Traffic is Blocked on UDP Port 69",
+            "Traffic is Blocked on UDP Port 88"
+        ],
+        "answer": "B. Traffic is Blocked on UDP Port 53"
+    },
+    {
+        "question": "Which of the following options represents a conceptual characteristic of an anomalybased IDS over a signature-based IDS?",
+        "options": [
+            "Requires vendor updates for a new threat.",
+            "Can identify unknown attacks.",
+            "Cannot deal with encrypted network traffic.",
+            "Produces less false positives."
+        ],
+        "answer": "B. Can identify unknown attacks."
+    },
+    {
+        "question": "Which of the following command will help you launch the Computer Management Console from\" Run \" windows as a local administrator Windows 7?",
+        "options": [
+            "ncpa.cpl",
+            "compmgmt.msc",
+            "services.msc",
+            "gpedit.msc"
+        ],
+        "answer": "B. compmgmt.msc"
+    },
+    {
+        "question": "Victor, a white hacker, received an order to perform a penetration test from the company \"Test us\". He starts collecting information and finds the email of an employee of this company in free access. Victor decides to send a letter to this email, changing the original email address to the email of the boss of this employee, \"boss@testus.com\". He asks the employee to immediately open the \"link with the report\" and check it. An employee of the company \"Test us\" opens this link and infects his computer. Thanks to these manipulations, Viktor gained access to the corporate network and successfully conducted a pentest. What type of attack did Victor use?",
+        "options": [
+            "Eavesdropping",
+            "Social engineering",
+            "Tailgating",
+            "Piggybacking"
+        ],
+        "answer": "B. Social engineering"
+    },
+    {
+        "question": "Identify the standard by the description: A regulation contains a set of guidelines that everyone who processes any electronic data in medicine should adhere to. It includes information on medical practices, ensuring that all necessary measures are in place while saving, accessing, and sharing any electronic medical data to secure patient data.",
+        "options": [
+            "COBIT",
+            "ISO/IEC 27002",
+            "HIPAA",
+            "FISMA"
+        ],
+        "answer": "C. HIPAA"
+    },
+    {
+        "question": "Which of the following command-line flags set a stealth scan for Nmap?",
+        "options": [
+            "-sT",
+            "-sS",
+            "-sM",
+            "-sU"
+        ],
+        "answer": "B. -sS"
+    },
+    {
+        "question": "What best describes two-factor authentication for a credit card (using a card and pin)?",
+        "options": [
+            "Something you have and something you know.",
+            "Something you know and something you are.",
+            "Something you have and something you are.",
+            "Something you are and something you remember."
+        ],
+        "answer": "A. Something you have and something you know."
+    },
+    {
+        "question": "While using your bank's online servicing you notice the following string in the URL bar: http://www.MyPersonalBank.com/account?id=368940911028389&Damount=10980&C amount=21 You observe that if you modify the Damount & Camount values and submit the request, that data on the web page reflect the changes. Which type of vulnerability is present on this site?",
+        "options": [
+            "Web Parameter Tampering",
+            "XSS Reflection",
+            "SQL injection",
+            "Cookie Tampering"
+        ],
+        "answer": "A. Web Parameter Tampering"
+    },
+    {
+        "question": "Which regulation defines security and privacy controls for all U.S. federal information systems except those related to national security?",
+        "options": [
+            "NIST-800-53",
+            "PCI-DSS",
+            "EU Safe Harbor",
+            "HIPAA"
+        ],
+        "answer": "A. NIST-800-53"
+    },
+    {
+        "question": "After several unsuccessful attempts to extract cryptography keys using software methods, Mark is thinking about trying another code-breaking methodology. Which of the following will best suit Mark based on his unsuccessful attempts?",
+        "options": [
+            "One-Time Pad.",
+            "Trickery and Deceit.",
+            "Frequency Analysis.",
+            "Brute-Force."
+        ],
+        "answer": "B. Trickery and Deceit."
+    },
+    {
+        "question": "Which of the following can be designated as \"Wireshark for CLI\"?",
+        "options": [
+            "John the Ripper",
+            "tcpdump",
+            "nessus",
+            "ethereal"
+        ],
+        "answer": "B. tcpdump"
+    },
+    {
+        "question": "Which of the following methods is best suited to protect confidential information on your laptop which can be stolen while travelling?",
+        "options": [
+            "BIOS password.",
+            "Full disk encryption.",
+            "Password protected files.",
+            "Hidden folders."
+        ],
+        "answer": "B. Full disk encryption."
+    },
+    {
+        "question": "Rajesh, the system administrator analyzed the IDS logs and noticed that when accessing the external router from the administrator's computer to update the router configuration, IDS registered alerts. What type of an alert is this?",
+        "options": [
+            "True negative",
+            "False negative",
+            "True positve",
+            "False positive"
+        ],
+        "answer": "D. False positive"
+    },
+    {
+        "question": "Identify the type of jailbreaking which allows user-level access and does not allow ibootlevel access?",
+        "options": [
+            "Userland Exploit",
+            "iBoot Exploit",
+            "Bootrom Exploit",
+            "iBootrom Exploit"
+        ],
+        "answer": "A. Userland Exploit"
+    },
+    {
+        "question": "You makes a series of interactive queries, choosing subsequent plaintexts based on the information from the previous encryptions. What type of attack are you trying to perform?",
+        "options": [
+            "Chosen-plaintext attack",
+            "Known-plaintext attack",
+            "Ciphertext-only attack",
+            "Adaptive chosen-plaintext attack"
+        ],
+        "answer": "D. Adaptive chosen-plaintext attack"
+    },
+    {
+        "question": "Which of the following is the type of violation when an unauthorized individual enters a building following an employee through the employee entrance?",
+        "options": [
+            "Pretexting.",
+            "Announced.",
+            "Reverse Social Engineering.",
+            "Tailgating."
+        ],
+        "answer": "D. Tailgating."
+    },
+    {
+        "question": "alert tcp any any -> 10.199.10.3 21 (msg: \"FTP on the network!\";) Which system usually uses such a configuration setting?",
+        "options": [
+            "FTP Server rule",
+            "IDS",
+            "Router IPTable",
+            "Firewall IPTable"
+        ],
+        "answer": "B. IDS"
+    },
+    {
+        "question": "With which of the following SQL injection attacks can an attacker deface a web page, modify or add data stored in a database and compromised data integrity?",
+        "options": [
+            "Compromised Data Integrity.",
+            "Loss of data availability.",
+            "Unauthorized access to an application.",
+            "Information Disclosure."
+        ],
+        "answer": "A. Compromised Data Integrity."
+    },
+    {
+        "question": "How works the mechanism of a Boot Sector Virus?",
+        "options": [
+            "Overwrites the original MBR and only executes the new virus code.",
+            "Moves the MBR to another location on the hard disk and copies itself to the",
+            "Moves the MBR to another location on the Random-access memory and copies",
+            "Modifies directory table entries to point to the virus code instead of the actual"
+        ],
+        "answer": "B. Moves the MBR to another location on the hard disk and copies itself to the"
+    },
+    {
+        "question": "Which of the following tools is packet sniffer, network detector and IDS for 802.11(a, b, g, n) wireless LANs?",
+        "options": [
+            "Nmap",
+            "Nessus",
+            "Abel",
+            "Kismet"
+        ],
+        "answer": "D. Kismet"
+    },
+    {
+        "question": "You know that the application you are attacking is vulnerable to an SQL injection, but you cannot see the result of the injection. You send a SQL query to the database, which makes the database wait before it can react. You can see from the time the database takes to respond, whether a query is true or false. What type of SQL injection did you use?",
+        "options": [
+            "Error-based SQLi.",
+            "UNION SQLi.",
+            "Blind SQLi.",
+            "Out-of-band SQLi."
+        ],
+        "answer": "C. Blind SQLi."
+    },
+    {
+        "question": "Philip, a cybersecurity specialist, needs a tool that can function as a network sniffer, record network activity, prevent and detect network intrusion. Which of the following tools is suitable for Philip?",
+        "options": [
+            "Nmap",
+            "Nessus",
+            "Snort",
+            "Cain & Abel"
+        ],
+        "answer": "C. Snort"
+    },
+    {
+        "question": "Mark, the network administrator, must allow UDP traffic on the host 10.0.0.3 and Internet traffic in the host 10.0.0.2. In addition to the main task, he needs to allow all FTP traffic to the rest of the network and deny all other traffic. Mark applies his ACL configuration on the router, and everyone has a problem with accessing FTP. In addition, hosts that are allowed access to the Internet cannot connect to it. In accordance with the following configuration, determine what happened on the network? access-list 102 deny tcp any any access-list 104 permit udp host 10.0.0.3 any access-list 110 permit tcp host 10.0.0.2 eq www any access-list 108 permit tcp any eq ftp any",
+        "options": [
+            "The ACL 110 needs to be changed to port 80.",
+            "The first ACL is denying all TCP traffic, and the router is ignoring the other",
+            "The ACL 104 needs to be first because is UDP.",
+            "The ACL for FTP must be before the ACL 110."
+        ],
+        "answer": "B. The first ACL is denying all TCP traffic, and the router is ignoring the other"
+    },
+    {
+        "question": "Which one of the following Google search operators allows restricting results to those from a specific website?",
+        "options": [
+            "[cache:]",
+            "[site:]",
+            "[inurl:]",
+            "[link:]"
+        ],
+        "answer": "B. [site:]"
+    },
+    {
+        "question": "John needs to choose a firewall that can protect against SQL injection attacks. Which of the following types of firewalls is suitable for this task?",
+        "options": [
+            "Web application firewall.",
+            "Stateful firewall.",
+            "Packet firewall.",
+            "Hardware firewall."
+        ],
+        "answer": "A. Web application firewall."
+    },
+    {
+        "question": "You managed to compromise a server with an IP address of 10.10.0.5, and you want to get fast a list of all the machines in this network. Which of the following Nmap command will you need?",
+        "options": [
+            "nmap -T4 -r 10.10.1.0/24",
+            "nmap -T4 -q 10.10.0.0/24",
+            "nmap -T4 -p 10.10.0.0/24",
+            "nmap -T4 -F 10.10.0.0/24"
+        ],
+        "answer": "D. nmap -T4 -F 10.10.0.0/24"
+    },
+    {
+        "question": "Maria conducted a successful attack and gained access to a Linux server. She wants to avoid that NIDS will not catch the succeeding outgoing traffic from this server in the future. Which of the following is the best way to avoid detection of NIDS?",
+        "options": [
+            "Alternate Data Streams.",
+            "Protocol Isolation.",
+            "Encryption.",
+            "Out of band signaling."
+        ],
+        "answer": "C. Encryption."
+    },
+    {
+        "question": "Black hat hacker Ivan wants to implement a man-in-the-middle attack on the corporate network. For this, he connects his router to the network and redirects traffic to intercept packets. What can the administrator do to mitigate the attack?",
+        "options": [
+            "Add message authentication to the routing protocol.",
+            "Use only static routes in the corporation's network.",
+            "Redirection of the traffic is not possible without the explicit admin's",
+            "Use the Open Shortest Path First (OSPF)."
+        ],
+        "answer": "A. Add message authentication to the routing protocol."
+    },
+    {
+        "question": "Rajesh, a system administrator, noticed that some clients of his company were victims of DNS Cache Poisoning. They were redirected to a malicious site when they tried to access Rajesh's company site. What is the best recommendation to deal with such a threat?",
+        "options": [
+            "Use Domain Name System Security Extensions (DNSSEC)",
+            "Use a multi-factor authentication",
+            "Use of security agents on customers' computers.",
+            "Customer awareness"
+        ],
+        "answer": "A. Use Domain Name System Security Extensions (DNSSEC)"
+    },
+    {
+        "question": "Which of the following best describes code injection?",
+        "options": [
+            "Form of attack in which a malicious user gains access to the codebase on the",
+            "Form of attack in which a malicious user gets the server to execute arbitrary",
+            "Form of attack in which a malicious user inserts text into a data field interpreted",
+            "Form of attack in which a malicious user inserts additional code into the"
+        ],
+        "answer": "C. Form of attack in which a malicious user inserts text into a data field interpreted"
+    },
+    {
+        "question": "The attacker tries to take advantage of vulnerability where the application does not verify if the user is authorized to access the internal object via its name or key. Which of the following queries best describes an attempt to exploit an insecure direct object using the name of the valid account \"User 1\"?",
+        "options": [
+            "\"GET/restricted/bank.getaccount(\"˜User1') HTTP/1.1 Host: westbank.com\"",
+            "\"GET/restricted/accounts/?name=User1 HTTP/1.1 Host: westbank.com\"",
+            "\"GET/restricted/goldtransfer?to=Account&from=1 or 1=1' HTTP/1.1Host:",
+            "\"GET/restricted/\\r\\n\\%00account%00User1%00access HTTP/1.1 Host:"
+        ],
+        "answer": "B. \"GET/restricted/accounts/?name=User1 HTTP/1.1 Host: westbank.com\""
+    },
+    {
+        "question": "Which of the following incident handling process phases is responsible for defining rules, employees training, creating a back-up, and preparing software and hardware resources before an incident occurs?",
+        "options": [
+            "Containment",
+            "Identification",
+            "Recovery",
+            "Preparation"
+        ],
+        "answer": "D. Preparation"
+    },
+    {
+        "question": "Which of the following is a network software suite designed for 802.11 WEP and WPAPSK keys cracking that can recover keys once enough data packets have been captured?",
+        "options": [
+            "wificracker",
+            "Aircrack-ng",
+            "Airguard",
+            "WLAN-crack"
+        ],
+        "answer": "B. Aircrack-ng"
+    },
+    {
+        "question": "Which of the options presented below is not a Bluetooth attack?",
+        "options": [
+            "Bluesmacking",
+            "Bluesnarfing",
+            "Bluejacking",
+            "Bluedriving"
+        ],
+        "answer": "D. Bluedriving"
+    },
+    {
+        "question": "Why is a penetration test considered to be better than a vulnerability scan?",
+        "options": [
+            "A penetration test is often performed by an automated tool, while a vulnerability",
+            "Penetration tests are intended to exploit weaknesses in the architecture of your",
+            "The tools used by penetration testers tend to have much more comprehensive",
+            "Vulnerability scans only do host discovery and port scanning by default."
+        ],
+        "answer": "B. Penetration tests are intended to exploit weaknesses in the architecture of your"
+    },
+    {
+        "question": "The company \"Usual company\" asked a cybersecurity specialist to check their perimeter email gateway security. To do this, the specialist creates a specially formatted email message: From: employee76@usualcompany.com To: employee34@usualcompany.com Subject: Test message Date: 5/8/2021 11:22 He sends this message over the Internet, and a \"Usual company \" employee receives it. This means that the gateway of this company doesn't prevent _____.",
+        "options": [
+            "Email Spoofing",
+            "Email Harvesting",
+            "Email Masquerading",
+            "Email Phishing"
+        ],
+        "answer": "A. Email Spoofing"
+    },
+    {
+        "question": "Which of the following tools is a command-line vulnerability scanner that scans web servers for dangerous files/CGIs?",
+        "options": [
+            "Snort",
+            "John the Ripper",
+            "Kon-Boot",
+            "Nikto"
+        ],
+        "answer": "D. Nikto"
+    },
+    {
+        "question": "You conduct an investigation and finds out that the browser of one of your employees sent malicious requests that the employee knew nothing about. Identify the web page vulnerability that the attacker used when the attack to your employee?",
+        "options": [
+            "Command Injection Attacks",
+            "File Inclusion Attack",
+            "Cross-Site Request Forgery (CSRF)",
+            "Hidden Field Manipulation Attack"
+        ],
+        "answer": "C. Cross-Site Request Forgery (CSRF)"
+    },
+    {
+        "question": "Which of the following will allow you to prevent unauthorized network access to local area networks and other information assets by wireless devices?",
+        "options": [
+            "AISS",
+            "WIPS",
+            "HIDS",
+            "NIDS"
+        ],
+        "answer": "B. WIPS"
+    },
+    {
+        "question": "Andrew is conducting a penetration test. He is now embarking on sniffing the target network. What is not available for Andrew when sniffing the network?",
+        "options": [
+            "Modifying and replaying captured network traffic.",
+            "Collecting unencrypted information about usernames and passwords.",
+            "Capturing network traffic for further analysis.",
+            "Identifying operating systems, services, protocols and devices."
+        ],
+        "answer": "A. Modifying and replaying captured network traffic."
+    },
+    {
+        "question": "John, a pentester, received an order to conduct an internal audit in the company. One of its tasks is to search for open ports on servers. Which of the following methods is the best solution for this task?",
+        "options": [
+            "Manual scan on each server.",
+            "Telnet to every port on each server.",
+            "Scan servers with Nmap.",
+            "Scan servers with MBSA."
+        ],
+        "answer": "C. Scan servers with Nmap."
+    },
+    {
+        "question": "What actions should be performed before using a Vulnerability Scanner for scanning a network?",
+        "options": [
+            "Firewall detection.",
+            "TCP/UDP Port scanning.",
+            "Checking if the remote host is alive.",
+            "TCP/IP stack fingerprinting."
+        ],
+        "answer": "C. Checking if the remote host is alive."
+    },
+    {
+        "question": "Alex, a cyber security specialist, should conduct a pentest inside the network, while he received absolutely no information about the attacked network. What type of testing will Alex conduct?",
+        "options": [
+            "Internal, Grey-box.",
+            "External, Black-box.",
+            "Internal, Black-box.",
+            "Internal, White-box."
+        ],
+        "answer": "C. Internal, Black-box."
+    },
+    {
+        "question": "Which of the following best describes a software firewall?",
+        "options": [
+            "Software firewall is placed between the desktop and the software components",
+            "Software firewall is placed between the anti-virus application and the IDS",
+            "Software firewall is placed between the router and the networking components",
+            "Software firewall is placed between the normal application and the networking"
+        ],
+        "answer": "D. Software firewall is placed between the normal application and the networking"
+    },
+    {
+        "question": "Josh, a security analyst, wants to choose a tool for himself to examine links between data. One of the main requirements is to present data using graphs and link analysis. Which of the following tools will meet John's requirements?",
+        "options": [
+            "Maltego.",
+            "Metasploit.",
+            "Analyst's Notebook.",
+            "Palantir."
+        ],
+        "answer": "A. Maltego."
+    },
+    {
+        "question": "Determine the type of SQL injection: SELECT * FROM user WHERE name = 'x' AND userid IS NULL; --';",
+        "options": [
+            "End of Line Comment.",
+            "Illegal/Logically Incorrect Query.",
+            "UNION SQL Injection.",
+            "Tautology."
+        ],
+        "answer": "A. End of Line Comment."
+    },
+    {
+        "question": "You are configuring the connection of a new employee's laptop to join an 802.11 network. The new laptop has the same hardware and software as the laptops of other employees. You used the wireless packet sniffer and found that it shows that the Wireless Access Point (WAR) is not responding to the association requests being sent by the laptop. What can cause this problem?",
+        "options": [
+            "The laptop is not configured to use DHCP.",
+            "The laptop cannot see the SSID of the wireless network.",
+            "The laptop is configured for the wrong channel.",
+            "The WAP does not recognize the la[top's MAC address."
+        ],
+        "answer": "D. The WAP does not recognize the la[top's MAC address."
+    },
+    {
+        "question": "The evil hacker Ivan has installed a remote access Trojan on a host. He wants to be sure that when a victim attempts to go to \"www.site.com\" that the user is directed to a phishing site. Which file should Ivan change in this case?",
+        "options": [
+            "Hosts",
+            "Boot.ini",
+            "Networks",
+            "Sudoers"
+        ],
+        "answer": "A. Hosts"
+    },
+    {
+        "question": "Let's assume that you decided to use PKI to protect the email you will send. At what layer of the OSI model will this message be encrypted and decrypted?",
+        "options": [
+            "Transport layer.",
+            "Session layer.",
+            "Application layer.",
+            "Presentation layer."
+        ],
+        "answer": "D. Presentation layer."
+    },
+    {
+        "question": "Rajesh, a network administrator found several unknown files in the root directory of his FTP server. He was very interested in a binary file named \"mfs\". Rajesh decided to check the FTP server logs and found that the anonymous user account logged in to the server, uploaded the files and ran the script using a function provided by the FTP server's software. Also, he found that \"mfs\" file is running as a process and it listening to a network port. What kind of vulnerability must exist to make this attack possible?",
+        "options": [
+            "Privilege escalation.",
+            "File system permissions.",
+            "Brute force login.",
+            "Directory traversal."
+        ],
+        "answer": "B. File system permissions."
+    },
+    {
+        "question": "Which of the following UDP ports is usually used by Network Time Protocol (NTP)?",
+        "options": [
+            "123",
+            "19",
+            "177",
+            "161"
+        ],
+        "answer": "A. 123"
+    },
+    {
+        "question": "Which of the following best describes the \"white box testing\" methodology?",
+        "options": [
+            "The internal operation of a system is only partly accessible to the tester.",
+            "The internal operation of a system is completely known to the tester.",
+            "Only the external operation of a system is accessible to the tester.",
+            "Only the internal operation of a system is known to the tester."
+        ],
+        "answer": "B. The internal operation of a system is completely known to the tester."
+    },
+    {
+        "question": "Which of the following requires establishing national standards for electronic health care transactions and national identifiers for providers, health insurance plans, and employers?",
+        "options": [
+            "DMCA",
+            "SOX",
+            "HIPAA",
+            "PCI-DSS"
+        ],
+        "answer": "C. HIPAA"
+    },
+    {
+        "question": "Alex, a cybersecurity specialist, received a task from the head to scan open ports. One of the main conditions was to use the most reliable type of TCP scanning. Which of the following types of scanning should Alex use?",
+        "options": [
+            "Half-open Scan.",
+            "NULL Scan.",
+            "TCP Connect/Full Open Scan.",
+            "Xmas Scan."
+        ],
+        "answer": "C. TCP Connect/Full Open Scan."
+    },
+    {
+        "question": "Viktor, the white hat hacker, conducts a security audit. He gains control over a user account and tries to access another account's sensitive information and files. How can he do this?",
+        "options": [
+            "Port Scanning",
+            "Fingerprinting",
+            "Privilege Escalation",
+            "Shoulder-Surfing"
+        ],
+        "answer": "C. Privilege Escalation"
+    },
+    {
+        "question": "Which of the following is a protocol that used for querying databases that store the registered users or assignees of an Internet resource, such as a domain name, an IP address block or an autonomous system?",
+        "options": [
+            "CAPTCHA",
+            "WHOIS",
+            "Internet Engineering Task Force",
+            "Internet Assigned Numbers Authority"
+        ],
+        "answer": "B. WHOIS"
+    },
+    {
+        "question": "John performs black-box testing. It tries to pass IRC traffic over port 80/TCP from a compromised web-enabled host during the test. Traffic is blocked, but outbound HTTP traffic does not meet any obstacles. What type of firewall checks outbound traffic?",
+        "options": [
+            "Application",
+            "Stateful",
+            "Packet Filtering",
+            "Circuit"
+        ],
+        "answer": "A. Application"
+    },
+    {
+        "question": "Determine the attack according to the following scenario: Benjamin performs a cloud attack during the translation of the SOAP message in the TLS layer. He duplicates the body of the message and sends it to the server as a legitimate user. As a result of these actions, Benjamin managed to access the server resources to unauthorized access.",
+        "options": [
+            "Wrapping",
+            "Cloud Hopper",
+            "Cloudborne",
+            "Side-channel"
+        ],
+        "answer": "A. Wrapping"
+    },
+    {
+        "question": "Which of the following does not apply to IPsec?",
+        "options": [
+            "Encrypts the payloads",
+            "Use key exchange.",
+            "Provides authentication.",
+            "Work at the Data Link Layer"
+        ],
+        "answer": "D. Work at the Data Link Layer"
+    },
+    {
+        "question": "Imagine the following scenario: 1. An attacker created a website with tempting content and benner like: 'Do you want to make $10 000 in a month?'. 2. Victim clicks to the interesting and attractive content URL. 3. Attacker creates a transparent 'iframe' in front of the banner which victim attempts to click. Victim thinks that he/she clicks to the 'Do you want to make $10 000 in a month?' banner but actually he/she clicks to the content or UPL that exists in the transparent 'iframe' which is set up by the attacker. What is the name of the attack which is described in the scenario?",
+        "options": [
+            "Session Fixation",
+            "HTML Injection",
+            "Clickjacking Attack",
+            "HTTP Parameter Pollution"
+        ],
+        "answer": "C. Clickjacking Attack"
+    },
+    {
+        "question": "Maria is surfing the internet and try to find information about Super Security LLC. Which process is Maria doing?",
+        "options": [
+            "Enumeration",
+            "Footprinting",
+            "Scanning",
+            "System Hacking"
+        ],
+        "answer": "B. Footprinting"
+    },
+    {
+        "question": "Which of the following application security testing method of white-box testing, in which only the source code of applications and their components is scanned for determines potential vulnerabilities in their software and architecture?",
+        "options": [
+            "IAST",
+            "SAST",
+            "MAST",
+            "DAST"
+        ],
+        "answer": "B. SAST"
+    },
+    {
+        "question": "The firewall prevents packets from entering the organization through certain ports and applications. What does this firewall check?",
+        "options": [
+            "Application layer port numbers and the transport layer headers.",
+            "Presentation layer headers and the session layer port numbers.",
+            "Network layer headers and the session layer port numbers.",
+            "Application layer headers and transport layer port numbers."
+        ],
+        "answer": "D. Application layer headers and transport layer port numbers."
+    },
+    {
+        "question": "What are the two main conditions for a digital signature?",
+        "options": [
+            "Legible and neat.",
+            "Unique and have special characters.",
+            "It has to be the same number of characters as a physical signature and must be",
+            "Unforgeable and authentic."
+        ],
+        "answer": "D. Unforgeable and authentic."
+    },
+    {
+        "question": "Which of the following is an encryption technique where data is encrypted by a sequence of photons that have a spinning trait while travelling from one end to another?",
+        "options": [
+            "Elliptic Curve Cryptography.",
+            "Homomorphic.",
+            "Quantum Cryptography.",
+            "Hardware-Based."
+        ],
+        "answer": "C. Quantum Cryptography."
+    },
+    {
+        "question": "Wireshark is one of the most important tools for a cybersecurity specialist. It is used for network troubleshooting, analysis, software, etc. And you often have to work with a packet bytes pane. In what format is the data presented in this pane?",
+        "options": [
+            "Binary",
+            "Hexadecimal",
+            "ASCII only",
+            "Decimal"
+        ],
+        "answer": "B. Hexadecimal"
+    },
+    {
+        "question": "John, a system administrator, is learning how to work with new technology: Docker. He will use it to create a network connection between the container interfaces and its parent host interface. Which of the following network drivers is suitable for John?",
+        "options": [
+            "Overlay networking.",
+            "Host networking.",
+            "Bridge networking.",
+            "Macvlan networking."
+        ],
+        "answer": "D. Macvlan networking."
+    },
+    {
+        "question": "What identifies malware by collecting data from protected computers while analyzing it on the provider’s infrastructure instead of locally?",
+        "options": [
+            "Cloud-based detection",
+            "Heuristics-based detection",
+            "Behavioural-based detection",
+            "Real-time protection"
+        ],
+        "answer": "A. Cloud-based detection"
+    },
+    {
+        "question": "Jack sent an email to Jenny with a business proposal. Jenny accepted it and fulfilled all her obligations. Jack suddenly refused his offer when everything was ready and said that he had never sent an email. Which of the following digital signature properties will help Jenny prove that Jack is lying?",
+        "options": [
+            "Confidentiality",
+            "Authentication",
+            "Non-Repudiation",
+            "Integrity"
+        ],
+        "answer": "C. Non-Repudiation"
+    },
+    {
+        "question": "Which of the following SQL injection attack does an attacker usually bypassing user authentication and extract data by using a conditional OR clause so that the condition of the WHERE clause will always be true?",
+        "options": [
+            "Tautology",
+            "UNION SQLi",
+            "Error-Based SQLi",
+            "End-of-Line Comment"
+        ],
+        "answer": "A. Tautology"
+    },
+    {
+        "question": "Which of the following is a logical collection of Internet-connected devices such as computers, smartphones or Internet of things (IoT) devices whose security has been breached and control ceded to a third party?",
+        "options": [
+            "Spambot",
+            "Rootkit",
+            "Botnet",
+            "Spear Phishing"
+        ],
+        "answer": "C. Botnet"
+    },
+    {
+        "question": "Which of the following is the risk that remains after the amount of risk left over after natural or inherent risks have been reduced?",
+        "options": [
+            "Residual risk",
+            "Impact risk",
+            "Deferred risk",
+            "Inherent risk"
+        ],
+        "answer": "A. Residual risk"
+    },
+    {
+        "question": "What means the flag \"-oX\" in a Nmap scan?",
+        "options": [
+            "Run a Xmas scan.",
+            "Output the results in XML format to a file.",
+            "Output the results in truncated format to the screen.",
+            "Run an express scan."
+        ],
+        "answer": "B. Output the results in XML format to a file."
+    },
+    {
+        "question": "Which of the following flags will trigger Xmas scan?",
+        "options": [
+            "-sP",
+            "-sX",
+            "-sA",
+            "-sV"
+        ],
+        "answer": "B. -sX"
+    },
+    {
+        "question": "For the company, an important criterion is the immutability of the financial reports sent by the financial director to the accountant. They need to be sure that the accountant received the reports and it hasn't been changed. How can this be achieved?",
+        "options": [
+            "Use a protected excel file.",
+            "Use a hash algorithm in the document once CFO approved the financial",
+            "Reports can send to the accountant using an exclusive USB for that document.",
+            "Financial reports can send the financial statements twice, one by email and the"
+        ],
+        "answer": "B. Use a hash algorithm in the document once CFO approved the financial"
+    },
+    {
+        "question": "The attacker enters its malicious data into intercepted messages in a TCP session since source routing is disabled. He tries to guess the responses of the client and server. What hijacking technique is described in this example?",
+        "options": [
+            "Blind",
+            "Registration",
+            "RST",
+            "TCP/IP"
+        ],
+        "answer": "A. Blind"
+    },
+    {
+        "question": "Ivan, an evil hacker, conducts an SQLi attack that is based on True/False questions. What type of SQLi does Ivan use?",
+        "options": [
+            "DMS-specific SQLi",
+            "Classic SQLi",
+            "Blind SQLi",
+            "Compound SQLi"
+        ],
+        "answer": "C. Blind SQLi"
+    },
+    {
+        "question": "Which of the following layers in IoT architecture helps bridge the gap between two endpoints, such as a device and a client, and carries out message routing, message identification, and subscribing?",
+        "options": [
+            "Internet.",
+            "Middleware.",
+            "Edge Technology.",
+            "Access Gateway."
+        ],
+        "answer": "D. Access Gateway."
+    },
+    {
+        "question": "Ivan, a black hat hacker, tries to call numerous random numbers inside the company, claiming he is from the technical support service. It offers company employee services in exchange for confidential data or login credentials. What method of social engineering does Ivan use?",
+        "options": [
+            "Quid Pro Quo",
+            "Elicitation",
+            "Tailgating",
+            "Reverse Social Engineering"
+        ],
+        "answer": "A. Quid Pro Quo"
+    },
+    {
+        "question": "Ivan, a black hat hacker, sends partial HTTP requests to the target webserver to exhaust the target server’s maximum concurrent connection pool. He wants to ensure that all additional connection attempts are rejected. What type of attack does Ivan implement?",
+        "options": [
+            "Fragmentation",
+            "Spoofed Session Flood",
+            "HTTP GET/POST",
+            "Slowloris"
+        ],
+        "answer": "D. Slowloris"
+    },
+    {
+        "question": "You have been assigned the task of defending the company from network sniffing. Which of the following is the best option for this task?",
+        "options": [
+            "Register all machines MAC Address in a Centralized Database.",
+            "Using encryption protocols to secure network communications.",
+            "Use Static IP Address.",
+            "Restrict Physical Access to Server Rooms hosting Critical Servers."
+        ],
+        "answer": "B. Using encryption protocols to secure network communications."
+    },
+    {
+        "question": "Which of the following cipher is based on factoring the product of two large prime numbers?",
+        "options": [
+            "MD5",
+            "SHA-1",
+            "RSA",
+            "RC5"
+        ],
+        "answer": "C. RSA"
+    },
+    {
+        "question": "Which of the following Nmap options will you use if you want to scan fewer ports than the default?",
+        "options": [
+            "-sP",
+            "-F",
+            "-T",
+            "-p"
+        ],
+        "answer": "B. -F"
+    },
+    {
+        "question": "Which of the following protocols is used in a VPN for setting up a secure channel between two devices?",
+        "options": [
+            "PEM",
+            "PPP",
+            "SET",
+            "IPSEC"
+        ],
+        "answer": "D. IPSEC"
+    },
+    {
+        "question": "Which of the following program attack both the boot sector and executable files?",
+        "options": [
+            "Multipartite Virus",
+            "Stealth virus",
+            "Macro virus",
+            "Polymorphic virus"
+        ],
+        "answer": "A. Multipartite Virus"
+    },
+    {
+        "question": "Ivan, the black hat hacker, split the attack traffic into many packets such that no single packet triggers the IDS. Which IDS evasion technique does Ivan use?",
+        "options": [
+            "Session Splicing.",
+            "Low-bandwidth attacks.",
+            "Unicode Evasion.",
+            "Flooding."
+        ],
+        "answer": "A. Session Splicing."
+    },
+    {
+        "question": "Ferdinand installs a virtual communication tower between the two authentic endpoints to mislead the victim. What attack does Ferdinand perform?",
+        "options": [
+            "Sinkhole",
+            "Aspidistra",
+            "aLTEr",
+            "Wi-Jacking"
+        ],
+        "answer": "C. aLTEr"
+    },
+    {
+        "question": "John, a penetration tester, decided to conduct SQL injection testing. He enters a huge amount of random data and observes changes in output and security loopholes in web applications. What SQL injection testing technique did John use?",
+        "options": [
+            "Fuzzing Testing.",
+            "Function Testing.",
+            "Static Testing.",
+            "Dynamic Testing."
+        ],
+        "answer": "A. Fuzzing Testing."
+    },
+    {
+        "question": "John, a cybersecurity specialist, received a copy of the event logs from all firewalls, Intrusion Detection Systems (IDS) and proxy servers on a company's network. He tried to match all the registered events in all the logs, and he found that their sequence didn't match. What can cause such a problem?",
+        "options": [
+            "The security breach was a false positive.",
+            "A proper chain of custody was not observed while collecting the logs.",
+            "The attacker altered events from the logs.",
+            "The network devices are not all synchronized."
+        ],
+        "answer": "D. The network devices are not all synchronized."
+    },
+    {
+        "question": "What actions should you take if you find that the company that hired you is involved with human trafficking?",
+        "options": [
+            "Confront the customer and ask her about this.",
+            "Copy the information to removable media and keep it in case you need it.",
+            "Stop work and contact the proper legal authorities.",
+            "Ignore the information and continue the assessment until the work is done."
+        ],
+        "answer": "C. Stop work and contact the proper legal authorities."
+    },
+    {
+        "question": "Suppose your company has implemented identify people based on walking patterns and made it part of physical control access to the office. The system works according to the following principle: The camera captures people walking and identifies employees, and then they must attach their RFID badges to access the office. Which of the following best describes this technology?",
+        "options": [
+            "The solution will have a high level of false positives.",
+            "Biological motion cannot be used to identify people.",
+            "The solution implements the two factors authentication: physical object and",
+            "Although the approach has two phases, it actually implements just one"
+        ],
+        "answer": "C. The solution implements the two factors authentication: physical object and"
+    },
+    {
+        "question": "What is a \"Collision attack\"?",
+        "options": [
+            "Сollision attack on a hash tries to find two inputs producing the same hash",
+            "Collision attacks try to change the hash.",
+            "Collision attacks attempt to recover information from a hash.",
+            "Collision attacks break the hash into several parts, with the same bytes in each"
+        ],
+        "answer": "A. Сollision attack on a hash tries to find two inputs producing the same hash"
+    },
+    {
+        "question": "What is meant by a \"rubber-hose\" attack in cryptography?",
+        "options": [
+            "A backdoor is placed into a cryptographic algorithm by its creator.",
+            "Forcing the targeted keystream through a hardware-accelerated device such as",
+            "Attempting to decrypt ciphertext by making logical assumptions about the",
+            "Extraction of cryptographic secrets through coercion or torture."
+        ],
+        "answer": "D. Extraction of cryptographic secrets through coercion or torture."
+    },
+    {
+        "question": "Which layer 3 protocol allows for end-to-end encryption of the connection?",
+        "options": [
+            "SFTP",
+            "FTPS",
+            "IPsec",
+            "SSL"
+        ],
+        "answer": "C. IPsec"
+    },
+    {
+        "question": "The attacker posted a message and an image on the forum, in which he embedded a malicious link. When the victim clicks on this link, the victim's browser sends an authenticated request to a server. What type of attack did the attacker use?",
+        "options": [
+            "Session hijacking",
+            "SQL injection",
+            "Cross-site scripting",
+            "Cross-site request forgery"
+        ],
+        "answer": "D. Cross-site request forgery"
+    },
+    {
+        "question": "What is an automated software testing technique that involves providing invalid, unexpected, or random data as inputs to a computer program?",
+        "options": [
+            "Security testing",
+            "Monkey testing",
+            "Fuzz testing",
+            "Concolic testing"
+        ],
+        "answer": "C. Fuzz testing"
+    },
+    {
+        "question": "Ivan, an evil hacker, is preparing to attack the network of a financial company. To do this, he wants to collect information about the operating systems used on the company's computers. Which of the following techniques will Ivan use to achieve the desired result?",
+        "options": [
+            "UDP Scanning.",
+            "IDLE/IPID Scanning.",
+            "Banner Grabbing.",
+            "SSDP Scanning."
+        ],
+        "answer": "C. Banner Grabbing."
+    },
+    {
+        "question": "Which of the following is not included in the list of recommendations of PCI Data Security Standards?",
+        "options": [
+            "Protect stored cardholder data.",
+            "Do not use vendor-supplied defaults for system passwords and other security",
+            "Encrypt transmission of cardholder data across open, public networks.",
+            "Rotate employees handling credit card transactions on a yearly basis to"
+        ],
+        "answer": "D. Rotate employees handling credit card transactions on a yearly basis to"
+    },
+    {
+        "question": "Michael, a technical specialist, discovered that the laptop of one of the employees connecting to a wireless point couldn't access the Internet, but at the same time, it can transfer files locally. He checked the IP address and the default gateway. They are both on 192.168.1.0/24. Which of the following caused the problem?",
+        "options": [
+            "The laptop is using an invalid IP address.",
+            "The laptop isn't using a private IP address.",
+            "The laptop and the gateway are not on the same network.",
+            "The gateway is not routing to a public IP address."
+        ],
+        "answer": "D. The gateway is not routing to a public IP address."
+    },
+    {
+        "question": "Which of the following option is a security feature on switches leverages the DHCP snooping database to help prevent man-in-the-middle attacks?",
+        "options": [
+            "Port security",
+            "Spanning tree",
+            "DHCP relay",
+            "DAI"
+        ],
+        "answer": "D. DAI"
+    },
+    {
+        "question": "Determine the attack by the description: Determine the attack by the description: The known-plaintext attack used against DES. This attack causes that encrypting plaintext with one DES key followed by encrypting it with a second DES key is no more secure than using a single key.",
+        "options": [
+            "Replay attack",
+            "Man-in-the-middle attack",
+            "Meet-in-the-middle attack",
+            "Traffic analysis attack"
+        ],
+        "answer": "C. Meet-in-the-middle attack"
+    },
+    {
+        "question": "Determine what of the list below is the type of honeypots that simulates the real production network of the target organization?",
+        "options": [
+            "High-interaction Honeypots.",
+            "Low-interaction Honeypots.",
+            "Research honeypots.",
+            "Pure Honeypots."
+        ],
+        "answer": "D. Pure Honeypots."
+    },
+    {
+        "question": "Your company has a risk assessment, and according to its results, the risk of a breach in the main company application is 40%. Your cybersecurity department has made changes to the application and requested a re-assessment of the risks. The assessment showed that the risk fell to 12%, with a risk threshold of 20%. Which of the following options would be the best from a business point of view?",
+        "options": [
+            "Accept the risk.",
+            "Avoid the risk.",
+            "Introduce more controls to bring risk to 0%.",
+            "Limit the risk."
+        ],
+        "answer": "A. Accept the risk."
+    },
+    {
+        "question": "The Web development team is holding an urgent meeting, as they have received information from testers about a new vulnerability in their Web software. They make an urgent decision to reduce the likelihood of using the vulnerability. The team beside to modify the software requirements to disallow users from entering HTML as input into their Web application. Determine the type of vulnerability that the test team found?",
+        "options": [
+            "SQL injection vulnerability.",
+            "Website defacement vulnerability.",
+            "Cross-site Request Forgery vulnerability.",
+            "Cross-site scripting vulnerability."
+        ],
+        "answer": "D. Cross-site scripting vulnerability."
+    },
+    {
+        "question": "Based on the following data, you need to calculate the approximate cost of recovery of the system operation per year: The cost of a new hard drive is $300; The chance of a hard drive failure is 1/3; The recovery specialist earns $10/hour; Restore the OS and software to the new hard disk - 10 hours; Restore the database from the last backup to the new hard disk - 4 hours; Assume the EF = 1 (100%), calculate the SLE, ARO, and ALE.",
+        "options": [
+            "$295",
+            "$440",
+            "$146",
+            "$960"
+        ],
+        "answer": "C. $146"
+    },
+    {
+        "question": "Identify Bluetooth attck techniques that is used in to send messages to users without the recipient's consent, for example for guerrilla marketing campaigns?",
+        "options": [
+            "Bluebugging",
+            "Bluesnarfing",
+            "Bluejacking",
+            "Bluesmacking"
+        ],
+        "answer": "C. Bluejacking"
+    },
+    {
+        "question": "Which type of viruses tries to hide from antivirus programs by actively changing and corrupting the chosen service call interruptions when they are being run?",
+        "options": [
+            "Cavity virus",
+            "Stealth/Tunneling virus",
+            "Tunneling virus",
+            "Polymorphic virus"
+        ],
+        "answer": "B. Stealth/Tunneling virus"
+    },
+    {
+        "question": "Define Metasploit module used to perform arbitrary, one-off actions such as port scanning, denial of service, SQL injection and fuzzing?",
+        "options": [
+            "Payload Module.",
+            "Auxiliary Module.",
+            "NOPS Module.",
+            "Exploit Module."
+        ],
+        "answer": "B. Auxiliary Module."
+    },
+    {
+        "question": "What is the purpose of the demilitarized zone?",
+        "options": [
+            "To provide a place for a honeypot.",
+            "To scan all traffic coming through the DMZ to the internal network.",
+            "To add an extra layer of security to an organization's local area network.",
+            "To add a protect to network devices."
+        ],
+        "answer": "C. To add an extra layer of security to an organization's local area network."
+    },
+    {
+        "question": "Identify a vulnerability in OpenSSL that allows stealing the information protected under normal conditions by the SSL/TLS encryption used to secure the Internet?",
+        "options": [
+            "Heartbleed Bug",
+            "Shellshock",
+            "POODLE",
+            "SSL/TLS Renegotiation Vulnerability"
+        ],
+        "answer": "A. Heartbleed Bug"
+    }
+        // Add more questions similarly
+    ];
+
+    // Function to generate the quiz
+    function generateQuiz() {
+        const quizContainer = document.getElementById('quiz-container');
+        const shuffledQuestions = shuffleArray(questions);
+        questions.forEach((q, index) => {
+            const questionDiv = document.createElement('div');
+            questionDiv.classList.add('question');
+            questionDiv.innerHTML = `
+                <p>${index + 1}. ${q.question}</p>
+                <div class="options">
+                    <label><input type="radio" name="q${index}" value="A"> A. ${q.options[0]}</label>
+                    <label><input type="radio" name="q${index}" value="B"> B. ${q.options[1]}</label>
+                    <label><input type="radio" name="q${index}" value="C"> C. ${q.options[2]}</label>
+                    <label><input type="radio" name="q${index}" value="D"> D. ${q.options[3]}</label>
+                </div>
+                <div class="dropdown-btn" onclick="toggleDropdown('dropdown_${index}')">Show Answer</div>
+                <div id="dropdown_${index}" class="dropdown-content">${q.answer}</div>
+            `;
+
+            quizContainer.appendChild(questionDiv);
+        });
+    }
+
+    // Function to toggle dropdown
+    function toggleDropdown(dropdownId) {
+        const dropdownContent = document.getElementById(dropdownId);
+        if (dropdownContent.style.display === 'block') {
+            dropdownContent.style.display = 'none';
+        } else {
+            dropdownContent.style.display = 'block';
+        }
+    }
+
+    // Call the function to generate the quiz
+    generateQuiz();
+    // function evaluateQuiz() {
+    //     let score = 0;
+
+    //     questions.forEach((q, index) => {
+    //         const selectedOption = document.querySelector(`input[name="q${index}"]:checked`);
+
+    //         if (selectedOption) {
+    //             const userAnswer = selectedOption.value;
+    //             if (userAnswer === q.answer.charAt(0)) {
+    //                 score += 1;
+    //             }
+    //         }
+    //     });
+
+    //     const totalQuestions = questions.length;
+    //     const percentage = (score / totalQuestions) * 100;
+
+    //     alert(`Your score: ${score}/${totalQuestions}\nPercentage: ${percentage.toFixed(2)}%`);
+    // }
+
+
+
+
+
+    // function evaluateQuiz() {
+    //     let score = 0;
+    //     let incorrectIndices = [];
+
+    //     questions.forEach((q, index) => {
+    //         const selectedOption = document.querySelector(`input[name="q${index}"]:checked`);
+
+    //         if (selectedOption) {
+    //             const userAnswer = selectedOption.value;
+    //             if (userAnswer === q.answer.charAt(0)) {
+    //                 score += 1;
+    //             } else {
+    //                 incorrectIndices.push(index);
+    //             }
+    //         } else {
+    //             incorrectIndices.push(index);
+    //         }
+    //     });
+
+    //     const totalQuestions = questions.length;
+    //     const percentage = (score / totalQuestions) * 100;
+
+    //     let resultMessage = `Your score: ${score}/${totalQuestions}\nPercentage: ${percentage.toFixed(2)}%\n`;
+
+    //     if (incorrectIndices.length > 0) {
+    //         resultMessage += `\nIncorrectly answered questions:\n`;
+    //         incorrectIndices.forEach((index) => {
+    //             resultMessage += `${index + 1}. ${questions[index].question}\n`;
+    //         });
+    //     }
+
+    //     alert(resultMessage);
+    // }
+
+
+    // function evaluateQuiz() {
+    //     let score = 0;
+    //     let incorrectIndices = [];
+
+    //     questions.forEach((q, index) => {
+    //         const selectedOption = document.querySelector(`input[name="q${index}"]:checked`);
+
+    //         if (selectedOption) {
+    //             const userAnswer = selectedOption.value;
+    //             if (userAnswer === q.answer.charAt(0)) {
+    //                 score += 1;
+    //             } else {
+    //                 incorrectIndices.push(index);
+    //             }
+    //         } else {
+    //             incorrectIndices.push(index);
+    //         }
+    //     });
+
+    //     const totalQuestions = questions.length;
+    //     const percentage = (score / totalQuestions) * 100;
+
+    //     let resultMessage = `Your score: ${score}/${totalQuestions}\nPercentage: ${percentage.toFixed(2)}%\n`;
+
+    //     if (incorrectIndices.length > 0) {
+    //         resultMessage += `\nIncorrectly answered questions:\n`;
+    //         incorrectIndices.forEach((index) => {
+    //             resultMessage += `${index + 1}. ${questions[index].question}\n`;
+    //         });
+    //     }
+
+    //     alert(resultMessage);
+
+    //     // Create a Blob with the result message
+    //     const blob = new Blob([resultMessage], { type: 'text/plain' });
+    //     const downloadLink = document.createElement('a');
+
+    //     // Set up the download link
+    //     downloadLink.href = URL.createObjectURL(blob);
+    //     downloadLink.download = 'quiz_results.txt';
+
+    //     // Trigger the download
+    //     downloadLink.click();
+    // }
+
+
+
+
+
+
+    function evaluateQuiz() {
+    clearInterval(timer);
+    document.getElementById('timer-box').textContent = '';
+    let incorrectAnswers = [];
+
+    questions.forEach((q, index) => {
+        const selectedOption = document.querySelector(`input[name="q${index}"]:checked`);
+        const questionContainer = document.querySelector(`.question-container:nth-child(${index + 1})`);
+
+        if (selectedOption) {
+            const userAnswer = selectedOption.value;
+            if (userAnswer !== q.answer.charAt(0)) {
+                // Include information about incorrect answers
+                incorrectAnswers.push({
+                    questionNumber: index + 1,
+                    incorrectOption: userAnswer,
+                    correctOption: q.answer.charAt(0)
+                });
+                
+                // Highlight incorrect answer
+                selectedOption.parentNode.classList.add('incorrect-answer');
+            } else {
+                // Highlight correct answer
+                selectedOption.parentNode.classList.add('correct-answer');
+            }
+        } else {
+            // Include information about unanswered questions
+            incorrectAnswers.push({
+                questionNumber: index + 1,
+                correctOption: q.answer.charAt(0)
+            });
+        }
+    });
+
+    // Now, you can show the "Show Answer" dropdown sections
+    document.querySelectorAll('.dropdown-content').forEach((dropdown) => {
+        dropdown.style.display = 'block';
+    });
+
+    // Now, you can show the "Show Answer" dropdown buttons
+    document.querySelectorAll('.dropdown-btn').forEach((dropdownBtn) => {
+        dropdownBtn.style.display = 'block';
+    });
+
+    if (incorrectAnswers.length > 0) {
+        let resultMessage = 'Incorrectly answered questions:\n';
+
+        incorrectAnswers.forEach((incorrectAnswer) => {
+            resultMessage += `Q${incorrectAnswer.questionNumber}: Incorrect - ${incorrectAnswer.incorrectOption}, Correct - ${incorrectAnswer.correctOption}\n`;
+        });
+
+        alert(resultMessage);
+
+        // Create a Blob with the result message
+        const blob = new Blob([resultMessage], { type: 'text/plain' });
+        const downloadLink = document.createElement('a');
+
+        // Set up the download link
+        downloadLink.href = URL.createObjectURL(blob);
+        downloadLink.download = 'incorrect_answers.txt';
+
+        // Trigger the download
+        downloadLink.click();
+    } else {
+        alert('Congratulations! All answers are correct.');
+    }
+}
+
+
+
+
+
+    let timer;
+    let remainingTime = 14400; // 4 hours in seconds
+
+    // function startTest() {
+    //     timer = setInterval(updateTimer, 1000);
+    //     document.getElementById('start-test-btn').disabled = true;
+    // }
+
+
+    // function startTest() {
+    //     clearInterval(timer);
+    //     remainingTime = 14400;
+    //     document.getElementById('timer').textContent = '';
+    //     document.getElementById('start-test-btn').style.display = 'none';
+    //     timer = setInterval(updateTimer, 1000);
+    // }
+
+    function startTest() {
+        clearInterval(timer);
+        remainingTime = 14400;
+        document.getElementById('timer-box').textContent = formatTime(remainingTime);
+        document.getElementById('start-test-btn').style.display = 'none';
+        document.getElementById('quiz-container').style.display = 'block'; // Show the quiz container
+        document.getElementById('evaluate-btn').style.display = 'block'; // Show the Evaluate button
+        document.getElementById('initial-info-table').style.display = 'none'; // Hide the initial info table
+        document.querySelectorAll('.dropdown-content').forEach((dropdown) => {
+    dropdown.style.display = 'none';
+});
+document.querySelectorAll('.dropdown-button').forEach((dropdown) => {
+    dropdown.style.display = 'none';
+});
+        timer = setInterval(updateTimer, 1000);
+        
+    }
+    
+    // function updateTimer() {
+    //     if (remainingTime > 0) {
+    //         const hours = Math.floor(remainingTime / 3600);
+    //         const minutes = Math.floor((remainingTime % 3600) / 60);
+    //         const seconds = remainingTime % 60;
+    //         document.getElementById('timer').textContent = `Time Remaining: ${hours}:${minutes}:${seconds}`;
+    //         remainingTime -= 1;
+    //     } else {
+    //         clearInterval(timer);
+    //         document.getElementById('timer').textContent = 'Time is up!';
+    //     }
+    // }
+
+    function updateTimer() {
+        if (remainingTime > 0) {
+            document.getElementById('timer-box').textContent = formatTime(remainingTime);
+            remainingTime -= 1;
+        } else {
+            clearInterval(timer);
+            document.getElementById('timer-box').textContent = 'Time is up!';
+        }
+    }
+
+
+
+
+    
+    function formatTime(seconds) {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const sec = seconds % 60;
+        return `${pad(hours)}:${pad(minutes)}:${pad(sec)}`;
+    }
+
+    function pad(number) {
+        return (number < 10) ? '0' + number : number;
+    }
+
+    function toggleDropdown(dropdownId) {
+        const dropdownContent = document.getElementById(dropdownId);
+        if (dropdownContent.style.display === 'block') {
+            dropdownContent.style.display = 'none';
+        } else {
+            dropdownContent.style.display = 'block';
+        }
+    }
+
+    function toggleDropdown(dropdownId) {
+        const dropdownButton = document.getElementById(dropdownId);
+        if (dropdownButton.style.display === 'block') {
+            dropdownButton.style.display = 'none';
+        } else {
+            dropdownButton.style.display = 'block';
+        }
+    }
+
+
+// Function to shuffle an array using Fisher-Yates algorithm
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+
+</script>
+
+</body>
+</html>
